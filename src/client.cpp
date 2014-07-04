@@ -5,6 +5,9 @@
 
 int main(int argc, const char* argv[]) {
   printf("\nJust reading http://bulk.fefe.de/scalable-networking.pdf\n");
-  int cfd, fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+  char buf[4096];
+  int len;
+  int fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   struct sockaddr_in si;
 }
