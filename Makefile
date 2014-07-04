@@ -1,9 +1,21 @@
 BINDIR = bin
+SRCDIR = src
 
-client: client.cpp
-	mkdir -p $(BINDIR)
-	gcc client.cpp -o $(BINDIR)/$(patsubst %.cpp, %, $<)
+RM      = rm -rf
+MKDIR   = mkdir -p
+GCC     = gcc
+
+client: $(SRCDIR)/client.cpp
+	$(MKDIR) $(BINDIR)
+	$(GCC) $(SRCDIR)/client.cpp -o $(BINDIR)/$(patsubst %.cpp,%,$(notdir $<))
+
+clean:
+	$(RM) $(BINDIR)
 
 all: client
 
-.PHONY: all
+run-client: $(BINDIR)/client
+	./$<
+
+
+.PHONY: all clean run-client
