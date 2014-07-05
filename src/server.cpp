@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/errno.h>
 
 #define BACKLOG_LENGTH 10
@@ -26,11 +27,22 @@ int main(int argc, const char* argv[]) {
 
   addrlen = sizeof si;
   while((cfd=accept(fd, (struct sockaddr*) &si, (socklen_t *) &addrlen)) != -1) {
-    printf("\n\rlistening on port %d w/ process %d\n\r", si.sin_port, getpid());
-    read_request(cfd, buf, sizeof(buf));
-    write(cfd, "200 OK HTTP/1.0\r\n\r\n"
-               "Hello galaxy", sizeof("200 OK HTTP/1.0\r\n\r\n") + sizeof("Hello galaxy"));
-    close(cfd);
+    pid_t pid = fork();
+    switch(pid) {
+      case 0: // child
+        printf("\n\rlistening on port %d w/ process %d\n\r", si.sin_port, getpid());
+        read_request(cfd, buf, sizeof(buf));
+        write(cfd, "200 OK HTTP/1.0\r\n\r\n"
+                   "Hello galaxy", sizeof("200 OK HTTP/1.0\r\n\r\n") + sizeof("Hello galaxy"));
+        close(cfd);
+        exit(0);
+        break;
+      case -1: // fail
+        printf("Failed to spawn a process w/ error %d", errno);
+        break;
+      default: // parent
+        printf("I just spawned a little fuck at %d", pid);
+    }
   }
 }
 
