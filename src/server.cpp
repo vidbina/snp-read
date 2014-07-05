@@ -15,7 +15,7 @@ int main(int argc, const char* argv[]) {
   int cfd, fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   struct sockaddr_in si;
   unsigned int addrlen;
-  printf("\nA dumb server\n\rJust try connecting to http://127.0.0.1:9586 from your browser ;)\n\r");
+  printf("\nA dumb server on process %d\n\rJust try connecting to http://127.0.0.1:9586 from your browser ;)\n\r", getpid());
 
   si.sin_family = PF_INET;
   inet_aton("127.0.0.1", &si.sin_addr);
@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
 
   addrlen = sizeof si;
   while((cfd=accept(fd, (struct sockaddr*) &si, (socklen_t *) &addrlen)) != -1) {
-    printf("\n\rlistening on port %d\n\r", si.sin_port);
+    printf("\n\rlistening on port %d w/ process %d\n\r", si.sin_port, getpid());
     read_request(cfd, buf, sizeof(buf));
     write(cfd, "200 OK HTTP/1.0\r\n\r\n"
                "Hello galaxy", sizeof("200 OK HTTP/1.0\r\n\r\n") + sizeof("Hello galaxy"));
