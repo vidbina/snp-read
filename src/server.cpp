@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/errno.h>
+#include <sysexits.h>
 
 #define BACKLOG_LENGTH 10
 
@@ -34,13 +35,27 @@ int main(int argc, const char* argv[]) {
         read_request(cfd, buf, sizeof(buf));
         //write(cfd, "200 OK HTTP/1.0\r\n\r\n"
         //           "Hello galaxy", sizeof("200 OK HTTP/1.0\r\n\r\n") + sizeof("Hello galaxy"));
-        close(cfd);
-        exit(0);
+        if(close(cfd) == -1) {
+          printf("closing of stream failed because err %d\n\r", errno);
+        };
+        printf("exit process %d\n\r", getpid());
+        exit(EXIT_SUCCESS);
         break;
       case -1: // fail
         printf("\n\rFailed to spawn a process w/ error %d\n\r", errno);
         break;
       default: // parent
+        int status = 0;
+        int waitres = waitpid(-1, &status, WNOHANG);
+        switch(waitres) {
+          case 0:
+            break;
+          case -1:
+            break;
+          default:
+            printf("witnessed change for %d\n\r", waitres);
+            break;
+        }
         printf("\n\r%d spawned process %d\n\r", getpid(), pid);
     }
   }
